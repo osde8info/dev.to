@@ -1,0 +1,2 @@
+class BanishedUser < ApplicationRecord
+end

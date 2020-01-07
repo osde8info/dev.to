@@ -145,6 +145,7 @@ class User < ApplicationRecord
   validate  :validate_mastodon_url
   validate  :validate_feed_url, if: :feed_url_changed?
   validate  :unique_including_orgs_and_podcasts, if: :username_changed?
+  validate  :non_banished_username
 
   scope :dev_account, -> { find_by(id: ApplicationConfig["DEVTO_USER_ID"]) }
 
@@ -385,6 +386,10 @@ class User < ApplicationRecord
 
   def unique_including_orgs_and_podcasts
     errors.add(:username, "is taken.") if Organization.find_by(slug: username) || Podcast.find_by(slug: username) || Page.find_by(slug: username)
+  end
+
+  def non_banished_username
+    errors.add(:username, "has been banished.") if BanishedUser.exists?(username: username)
   end
 
   def subscribe_to_mailchimp_newsletter
